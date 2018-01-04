@@ -1,0 +1,13 @@
+{
+  "name": "meltdowngrabber",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "github": "^13.0.1",
+    "nodegit": "^0.20.3"
+  },
+  "devDependencies": {
+    "@types/nodegit": "^0.18.5"
+  }
+}
