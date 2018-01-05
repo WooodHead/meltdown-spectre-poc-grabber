@@ -23,10 +23,10 @@ Promise.all(promises)
 		});
 		const uniqRepos = uniqBy(meltdownRepos, 'full_name');
 		uniqRepos.forEach(elem => {
-			console.log(`Cloning: repos/${elem.name}_${elem.owner.login}`);
-			Git.Clone(elem.clone_url, `repos/${elem.name}_${elem.owner.login}`)
+			console.log(`Cloning: repos/${elem.owner.login}/${elem.name}`);
+			Git.Clone(elem.clone_url, `repos/${elem.owner.login}/${elem.name}`)
 				.then(() => {
-					console.log(`Cloned: repos/${elem.name}_${elem.owner.login}`);
+					console.log(`Cloned: repos/${elem.owner.login}/${elem.name}`);
 				})
 				.catch(err => {
 					if (err.errno === -4) {
@@ -42,27 +42,36 @@ Promise.all(promises)
 	});
 
 function updateRepo(repoObj) {
-	console.log(`Already cloned, updating: repos/${repoObj.name}_${repoObj.owner.login}`);
-	attemptOpen(`repos/${repoObj.name}_${repoObj.owner.login}`)
-		.then(repo => {
+	console.log(`Already cloned, updating: repos/${repoObj.owner.login}/${repoObj.name}`);
+	attemptOpen(`repos/${repoObj.owner.login}/${repoObj.name}`)
+		.then(async repo => {
+			const commit = await repo.getMasterCommit();
+			const oldDate = Math.floor(commit.date());
 			repo
 				.fetchAll()
-				.then(() => {
+				.then(async () => {
+					const newCommit = await repo.getMasterCommit();
+					const newDate = Math.floor(newCommit.date());
+					if (newDate !== oldDate) {
+						console.log(`repos/${repoObj.owner.login}/${repoObj.name} has changes.`);
+					}
 					repo
 						.mergeBranches('master', 'origin/master')
 						.catch(err => {
 							if (err.errno !== -3) {
 								console.error(err);
-								console.log(`repos/${repoObj.name}_${repoObj.owner.login} errored.`);
+								console.log(`repos/${repoObj.owner.login}/${repoObj.name} errored.`);
 							}
 						});
 				})
 				.catch(err => {
 					console.error(err);
+					console.log(`repos/${repoObj.owner.login}/${repoObj.name} errored.`);
 				});
 		})
 		.catch(err => {
 			console.log(err);
+			console.log(`repos/${repoObj.owner.login}/${repoObj.name} errored.`);
 		});
 }
 
