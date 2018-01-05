@@ -72,7 +72,7 @@ function isRelated(elem) {
 	} else {
 		elem.description = elem.full_name;
 	}
-	if (elem.description.search(/(cve|exploit|attack|poc|example|bug|patch|check|[ae]ffected)/igm) >= 0) {
+	if (elem.description.search(/(cve|exploit|attack|poc|example|bug|patch|check|[ae]ffected|vuln[erability]*)/igm) >= 0) {
 		return true;
 	}
 }
