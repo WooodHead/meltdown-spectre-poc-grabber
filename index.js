@@ -75,23 +75,7 @@ function isRelated(elem) {
 	} else {
 		elem.description = elem.full_name;
 	}
-	elem.description = elem.description.toLowerCase();
-	if (elem.description.search(/cve/) >= 0) {
-		return true;
-	}
-	if (elem.description.search(/exploit/) >= 0) {
-		return true;
-	}
-	if (elem.description.search(/attack/) >= 0) {
-		return true;
-	}
-	if (elem.description.search(/poc/) >= 0) {
-		return true;
-	}
-	if (elem.description.search(/example/) >= 0) {
-		return true;
-	}
-	if (elem.description.search(/bug/) >= 0) {
+	if (elem.description.search(/(cve|exploit|attack|poc|example|bug|patch)/igm) >= 0) {
 		return true;
 	}
 }
