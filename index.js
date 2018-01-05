@@ -1,16 +1,14 @@
-const Git = require("nodegit");
-const GitHubApi = require("github");
+const Git = require('nodegit');
+const GitHubApi = require('github');
 
 const github = new GitHubApi();
 const filterNonUnique = arr =>
 	arr.filter(i => arr.indexOf(i) === arr.lastIndexOf(i));
 const errorAndAttemptOpen = local => Git.Repository.open(local);
-let meltdownRepos = [];
+const meltdownRepos = [];
 github.search
-	.repos({ q: `meltdown`, sort: "updated", per_page: 100 })
+	.repos({q: `meltdown`, sort: 'updated', per_page: 100})
 	.then(repos => {
-		// console.log(repos.data);
-		// console.log(repos.data.items);
 		repos.data.items.forEach(elem => {
 			if (!elem.description) {
 				elem.description = elem.full_name;
@@ -49,19 +47,21 @@ github.search
 						errorAndAttemptOpen(`repos/${elem.name}_${elem.owner.login}`)
 						.then(repo => {
 							repo.fetchAll().then(() => {
-									repo.mergeBranches('master', 'origin/master')
+								repo.mergeBranches('master', 'origin/master')
 									.catch(err => {
-										console.error(err);
-										console.log(`${elem.name}_${elem.owner.login}`);
-									})
+										if (err.errno !== -3) {
+											console.error(err);
+											console.log(`${elem.name}_${elem.owner.login}`);
+										}
+									});
 							  })
 							  .catch(err => {
 								  console.error(err);
-							  })
+							  });
 						})
 						.catch(err => {
 							console.log(err);
-						})
+						});
 					} else {
 						console.log(err);
 					}
@@ -72,7 +72,7 @@ github.search
 		console.log(err);
 	});
 github.search
-	.repos({ q: `spectre`, sort: "updated", per_page: 100 })
+	.repos({q: `spectre`, sort: 'updated', per_page: 100})
 	.then(repos => {
 		repos.data.items.forEach(elem => {
 			if (!elem.description) {
@@ -112,19 +112,19 @@ github.search
 						errorAndAttemptOpen(`repos/${elem.name}_${elem.owner.login}`)
 						.then(repo => {
 							repo.fetchAll().then(() => {
-									repo.mergeBranches('master', 'origin/master')
+								repo.mergeBranches('master', 'origin/master')
 									.catch(err => {
 										console.error(err);
 										console.log(`${elem.name}_${elem.owner.login}`);
-									})
+									});
 							  })
 							  .catch(err => {
 								  console.error(err);
-							  })
+							  });
 						})
 						.catch(err => {
 							console.log(err);
-						})
+						});
 					} else {
 						console.log(err);
 					}
