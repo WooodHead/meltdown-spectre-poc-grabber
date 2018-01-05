@@ -75,22 +75,23 @@ function isRelated(elem) {
 	} else {
 		elem.description = elem.full_name;
 	}
-	if (elem.description.toLowerCase().search(/cve/) >= 0) {
+	elem.description = elem.description.toLowerCase();
+	if (elem.description.search(/cve/) >= 0) {
 		return true;
 	}
-	if (elem.description.toLowerCase().search(/exploit/) >= 0) {
+	if (elem.description.search(/exploit/) >= 0) {
 		return true;
 	}
-	if (elem.description.toLowerCase().search(/attack/) >= 0) {
+	if (elem.description.search(/attack/) >= 0) {
 		return true;
 	}
-	if (elem.description.toLowerCase().search(/poc/) >= 0) {
+	if (elem.description.search(/poc/) >= 0) {
 		return true;
 	}
-	if (elem.description.toLowerCase().search(/example/) >= 0) {
+	if (elem.description.search(/example/) >= 0) {
 		return true;
 	}
-	if (elem.description.toLowerCase().search(/bug/) >= 0) {
+	if (elem.description.search(/bug/) >= 0) {
 		return true;
 	}
 }
