@@ -45,15 +45,28 @@ function updateRepo(repoObj) {
 	console.log(`Already cloned, updating: repos/${repoObj.owner.login}/${repoObj.name}`);
 	attemptOpen(`repos/${repoObj.owner.login}/${repoObj.name}`)
 		.then(async repo => {
-			const commit = await repo.getMasterCommit();
-			const oldDate = Math.floor(commit.date());
+			let commit, oldDate;
+			try {
+				commit = await repo.getMasterCommit();
+				oldDate = Math.floor(commit.date());
+			} catch (err) {
+				oldDate = null;
+			}
 			repo
 				.fetchAll()
 				.then(async () => {
-					const newCommit = await repo.getMasterCommit();
-					const newDate = Math.floor(newCommit.date());
-					if (newDate !== oldDate) {
+					let newCommit, newDate;
+					try {
+						newCommit = await repo.getMasterCommit();
+						newDate = Math.floor(newCommit.date());
+					} catch (err) {
+						newDate = null;
+					}
+
+					if (newDate && oldDate && newDate !== oldDate) {
 						console.log(`repos/${repoObj.owner.login}/${repoObj.name} has changes.`);
+					} else if (!newDate || !oldDate) {
+						console.log(`repos/${repoObj.owner.login}/${repoObj.name} might have changes.`)
 					}
 					repo
 						.mergeBranches('master', 'origin/master')
