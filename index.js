@@ -1,9 +1,8 @@
 const Git = require('nodegit');
 const GitHubApi = require('github');
-
+const uniqBy = require('lodash.uniqby');
 const github = new GitHubApi();
-const filterNonUnique = arr =>
-	arr.filter(i => arr.indexOf(i) === arr.lastIndexOf(i));
+
 const errorAndAttemptOpen = local => Git.Repository.open(local);
 
 const promises = [
@@ -21,7 +20,7 @@ Promise.all(promises)
 				}
 			});
 		});
-		const uniqRepos = filterNonUnique(meltdownRepos);
+		const uniqRepos = uniqBy(meltdownRepos, 'full_name');
 		uniqRepos.forEach(elem => {
 			Git.Clone(elem.clone_url, `repos/${elem.name}_${elem.owner.login}`)
 				.then(() => {
