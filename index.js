@@ -1,9 +1,10 @@
 const Git = require('nodegit');
 const GitHubApi = require('github');
 const uniqBy = require('lodash.uniqby');
+
 const github = new GitHubApi();
 
-const errorAndAttemptOpen = local => Git.Repository.open(local);
+const attemptOpen = local => Git.Repository.open(local);
 
 const promises = [
 	github.search.repos({q: `meltdown`, sort: 'updated', per_page: 100}),
@@ -22,9 +23,10 @@ Promise.all(promises)
 		});
 		const uniqRepos = uniqBy(meltdownRepos, 'full_name');
 		uniqRepos.forEach(elem => {
+			console.log(`Cloning: repos/${elem.name}_${elem.owner.login}`);
 			Git.Clone(elem.clone_url, `repos/${elem.name}_${elem.owner.login}`)
 				.then(() => {
-					console.log(`Cloned: ${elem.name}_${elem.owner.login}`);
+					console.log(`Cloned: repos/${elem.name}_${elem.owner.login}`);
 				})
 				.catch(err => {
 					if (err.errno === -4) {
@@ -40,19 +42,14 @@ Promise.all(promises)
 	});
 
 function updateRepo(repoObj) {
-	console.log(
-		`Already cloned, updating: ${repoObj.name}_${repoObj.owner.login}`
-	);
-	errorAndAttemptOpen(`repos/${repoObj.name}_${repoObj.owner.login}`)
+	console.log(`Already cloned, updating: repos/${repoObj.name}_${repoObj.owner.login}`);
+	attemptOpen(`repos/${repoObj.name}_${repoObj.owner.login}`)
 		.then(repo => {
 			repo
 				.fetchAll()
 				.then(() => {
 					repo
-						.mergeBranches(
-							'master',
-							'origin/master'
-						)
+						.mergeBranches('master', 'origin/master')
 						.catch(err => {
 							if (err.errno !== -3) {
 								console.error(err);
@@ -75,7 +72,7 @@ function isRelated(elem) {
 	} else {
 		elem.description = elem.full_name;
 	}
-	if (elem.description.search(/(cve|exploit|attack|poc|example|bug|patch)/igm) >= 0) {
+	if (elem.description.search(/(cve|exploit|attack|poc|example|bug|patch|check|[ae]ffected)/igm) >= 0) {
 		return true;
 	}
 }
